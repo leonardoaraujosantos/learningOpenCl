@@ -43,16 +43,18 @@ int main() {
   // Initialize vectors on host
   for( int i = 0; i < n; i++ )
   {
-    h_a[i] = (float)i;
-    h_b[i] = (float)i+1;
+    h_a[i] = (float)0;
+    h_b[i] = (float)0;
+    h_c[i] = 0;
   }
 
   size_t globalSize, localSize;
   cl_int err;
   // Number of work items in each local work group
-  localSize = 1;
+  localSize = 5;
   // Number of total work items - localSize must be devisor
   globalSize = ceil(n/(float)localSize)*localSize;
+  printf("LocalSize=%d globalSize=%d\n",(int)localSize, (int)globalSize);
 
   // OpenCL part
   cl_platform_id cpPlatform;        // OpenCL platform
@@ -88,8 +90,23 @@ int main() {
 
   // Create the compute program from the source buffer
   program = clCreateProgramWithSource(context, 1,(const char **) & source_str, (const size_t *)&source_size, &err);
-  // Build the program executable
-  clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
+  // Build the program (with our kernel)
+  const char options[] = "-Werror -cl-std=CL1.1";  
+  err = clBuildProgram(program, 0, NULL, options, NULL, NULL);
+  if (err != CL_SUCCESS) {
+    cl_build_status status;
+    char *programLog;
+    size_t logSize;
+    printf("Kernel compilation error\n");
+    clGetProgramBuildInfo(program, 0, CL_PROGRAM_BUILD_STATUS, sizeof(cl_build_status), &status, NULL);
+    // check build log
+    clGetProgramBuildInfo(program, 0, CL_PROGRAM_BUILD_LOG, 0, NULL, &logSize);
+    programLog = (char*) calloc (logSize+1, sizeof(char));
+    clGetProgramBuildInfo(program, 0, CL_PROGRAM_BUILD_LOG, logSize+1, programLog, NULL);
+    printf("Build failed; error=%d, status=%d, programLog:nn%s\n", err, status, programLog);
+    free(programLog);
+    return -1;
+  }
   // Create the compute kernel in the program we wish to run
   kernel = clCreateKernel(program, "addVec", &err);
 
@@ -114,12 +131,12 @@ int main() {
   // Wait for the command queue to get serviced before reading back results
   clFinish(queue);
 
-  // Read the results from the device
+  // Copy from GPU memory to host memory
   clEnqueueReadBuffer(queue, d_c, CL_TRUE, 0,sizeBytesVectors, h_c, 0, NULL, NULL );
 
   //Sum up vector c and print result divided by n, this should equal 1 within error
   for(int i=0; i<n; i++)
-    printf("Result z[%d]=%d\n",i,h_c[i]);
+    printf("Z[%d]=%3.2f\n",i,h_c[i]);
 
   // release OpenCL resources
   clReleaseMemObject(d_a);
