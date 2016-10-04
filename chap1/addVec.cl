@@ -15,4 +15,5 @@ __kernel void addVec( __global float *a,
 
   // Each valid work item will compute this...
   z[idx] = a[idx] + b[idx];
+  printf("a[%d](%d) + b[%d](%d) = %f\n",idx,a[idx],idx,a[idx],z[idx]);
 }
