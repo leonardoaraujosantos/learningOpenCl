@@ -1,6 +1,11 @@
 /*
 Compile and profile
 nvcc checkTransfer.cu -o checkTransfer
+
+If you have problems with gcc version try
+sudo ln -s /usr/bin/gcc-4.9 /usr/local/cuda-7.5/bin/gcc
+
+Profile console
 nvprof ./checkTransfer
 */
 int main()
@@ -31,6 +36,6 @@ int main()
     // Get hostArray from GPU to CPU
     cudaMemcpy(hostArray,deviceArray,bytes,cudaMemcpyDeviceToHost);
 
+    // Release memory from GPU
     cudaFree(deviceArray);
-
 }
