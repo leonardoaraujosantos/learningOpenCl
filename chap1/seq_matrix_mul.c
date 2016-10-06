@@ -54,16 +54,20 @@ float *A = (float*) malloc(sizeof(float) * num_rows_A * num_cols_A);
 float *B = (float*) malloc(sizeof(float) * num_rows_B * num_cols_B);
 float *C = (float*) malloc(sizeof(float) * num_rows_C * num_cols_C);
 
-void matrix_2d_mul_float(float *A, float *B, float *C, int num_rows_A, int num_cols_A, int num_rows_B, int num_cols_B) {
+void matrix_2d_mul_float(float *A, float *B, float *C, int num_rows_A, int num_cols_A, int num_cols_B) {
   float sum = 0;
   int num_rows_C = num_rows_A;
   int num_cols_C = num_cols_B;
+  // Iterate on each row of A
   for(int i=0; i<num_rows_A; i++) {
+    // Iterate on each collumn of B
     for (int k=0; k<num_cols_B; k++) {
       sum = 0;
+      // Do the "multiply add between" row of A and collumn of B
       for (int j=0; j<num_cols_A; j++){
         // A[i][j] == A[i*num_cols_A+j]
         // B[j][k] == B[j*num_cols_B+k]
+        //sum += A[i][j]*B[j][k];
         sum += A[i*num_cols_A+j]*B[j*num_cols_B+k];
       }
       // C[i][k] == C[i*num_cols_C+k]
@@ -104,10 +108,6 @@ int main() {
   printf("Size in bytes A: %d\n",numBytesA);
   printf("Size in bytes B: %d\n",numBytesB);
 
-  // Populate matricex on heap
-  memcpy(A,A_ref,numBytesA);
-  memcpy(B,B_ref,numBytesB);
-
   displayVec1d(A,num_rows_A * num_cols_A,(char*)"A");
 
   // Print reference
@@ -116,13 +116,20 @@ int main() {
 
   // Call sequential function
   //ProfilerStart("nameOfProfile.log");
-  matrix_2d_mul_float(A,B,C,num_rows_A,num_cols_A,num_rows_B,num_cols_B);
+  for (int idxLoop=1; idxLoop < 1000000; idxLoop++) {
+    // Populate matricex on heap
+    memcpy(A,A_ref,numBytesA);
+    memcpy(B,B_ref,numBytesB);
+
+    matrix_2d_mul_float(A,B,C,num_rows_A,num_cols_A,num_cols_B);
+  }
   //ProfilerStop();
 
   // Print result
   printf("Calculated result for C\n");
   displayMatrix2d(C,num_rows_C,num_cols_C);
 
+  // Free memory
   free(A);free(B);free(C);
 
   return 0;
