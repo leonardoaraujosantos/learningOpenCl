@@ -101,7 +101,6 @@ void displayMatrix2d(float *mat, int num_rows, int num_cols) {
 }
 
 int main() {
-
   // Get size in bytes for our vectors
   int numBytesA = sizeof(float) * num_rows_A * num_cols_A;
   int numBytesB = sizeof(float) * num_rows_B * num_cols_B;
