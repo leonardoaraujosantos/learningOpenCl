@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-int num_rows_A = 900; int num_rows_B = 900; int num_rows_C = 900;
-int num_cols_A = 900; int num_cols_B = 600; int num_cols_C = 600;
+int num_rows_A = 2000; int num_rows_B = 2000; int num_rows_C = 2000;
+int num_cols_A = 2000; int num_cols_B = 600; int num_cols_C = 600;
 
 // I'm forcing a malloc because I want to add the malloc time on the game
 float *A = (float*) malloc(sizeof(float) * num_rows_A * num_cols_A);
@@ -45,30 +45,6 @@ void fillRand(float *vec, int minValue, int maxValue, int sizeVec) {
   }
 }
 
-void displayVec1d(float *vec, int size, char *desc) {
-  // Trick to point to a 2d matrix
-  printf("\nVector %s size: %d {",desc,size);
-  for (int idx = 0; idx < size; idx++) {
-    printf(" %3.2f,",vec[idx]);
-  }
-  printf("}\n");
-}
-
-void displayMatrix2d(float *mat, int num_rows, int num_cols) {
-  // Trick to point to a 2d matrix
-  printf("\nMatrix %dx%d\n",num_rows,num_cols);
-  for (int idx_row = 0; idx_row < num_rows_C; idx_row++) {
-    printf("|");
-    for (int idx_col = 0; idx_col < num_cols_C; idx_col++) {
-      // mat[row][col] == mat[idx_row*num_cols+idx_col]
-      printf(" %3.2f ",mat[idx_row*num_cols+idx_col]);
-    }
-    printf("|");
-    printf("\n");
-  }
-  printf("\n");
-}
-
 int main() {
   // Get size in bytes for our vectors
   int numBytesA = sizeof(float) * num_rows_A * num_cols_A;
@@ -88,10 +64,7 @@ int main() {
     matrix_2d_mul_float(A,B,C,num_rows_A,num_cols_A,num_cols_B);
     printf("Matrix multiplication done %d\n",idxLoop);
   }
-
-
   // Free memory
   free(A);free(B);free(C);
-
   return 0;
 }
