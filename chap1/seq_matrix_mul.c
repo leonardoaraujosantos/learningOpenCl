@@ -59,6 +59,7 @@ void matrix_2d_mul_float(float *A, float *B, float *C, int num_rows_A, int num_c
   int num_rows_C = num_rows_A;
   int num_cols_C = num_cols_B;
   // Iterate on each row of A
+  //#pragma omp parallel for
   for(int i=0; i<num_rows_A; i++) {
     // Iterate on each collumn of B
     for (int k=0; k<num_cols_B; k++) {
@@ -107,6 +108,7 @@ int main() {
   printf("Size in bytes A: %d\n",numBytesA);
   printf("Size in bytes B: %d\n",numBytesB);
 
+  memcpy(A,A_ref,numBytesA);
   displayVec1d(A,num_rows_A * num_cols_A,(char*)"A");
 
   // Print reference
@@ -114,7 +116,7 @@ int main() {
   displayMatrix2d((float*)C_ref,num_rows_C,num_cols_C);
 
   // Call sequential function
-  //ProfilerStart("nameOfProfile.log");
+  //ProfilerStart("nameOfProfile.log");  
   for (int idxLoop=1; idxLoop < 1000000; idxLoop++) {
     // Populate matricex on heap
     memcpy(A,A_ref,numBytesA);
