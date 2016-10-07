@@ -1,65 +1,14 @@
 /*
-First sequential problem matrix multiplication
-We're going to multiply 2 matrix A(3x3),B(3x2), the expected result is a
-matrix C (3x2)
-
-Compiling
-g++ -pg seq_matrix_mul.c -o seq_matrix_mul
-
-Check for leaks
-valgrind --leak-check=full --show-leak-kinds=all ./seq_matrix_mul
-
-Profile (Instruction)
-valgrind --tool=callgrind ./seq_matrix_mul
-kcachegrind callgrind.out.26375
-
-Profile (Time old way, 1ms precision)
-./seq_matrix_mul
-gprof ./seq_matrix_mul gmon.out > timeProf.txt
-
-Profile (Time using Google Performance Tools)
-Install https://github.com/gperftools/gperftools
-g++ -DWITHGPERFTOOLS -lprofiler -g seq_matrix_mul.c -o seq_matrix_mul
-./seq_matrix_mul
-pprof --callgrind ./seq_matrix_mul profile.log > profile.callgrind
-
-With perf
-apt-get install linux-tools-common linux-tools-generic linux-tools-`uname -r`
-
-# Execution time
-perf stat ./seq_matrix_mul
-
-# Record event information
-sudo perf record -g ./seq_matrix_mul
-
-# Report results
-sudo perf report -g
+  Now we make the matrix much bigger
+  g++ -pg seq_matrix_big_mul.c -o seq_matrix_big_mul
 */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
-//#include <gperftools/profiler.h>
-
-int num_rows_A = 3; int num_rows_B = 3; int num_rows_C = 3;
-int num_cols_A = 3; int num_cols_B = 2; int num_cols_C = 2;
-
-// Create 2d array references
-float A_ref[3][3] = {
-  {1, 2, 3} ,
-  {4, 5, 6} ,
-  {1, 3, 2}
-};
-float B_ref[3][2] = {
-  {10, 11} ,
-  {7, 5} ,
-  {2, 4}
-};
-float C_ref[3][2] = {
-  {30, 33} ,
-  {87, 93} ,
-  {35, 24}
-};
+int num_rows_A = 900; int num_rows_B = 900; int num_rows_C = 900;
+int num_cols_A = 900; int num_cols_B = 600; int num_cols_C = 600;
 
 // I'm forcing a malloc because I want to add the malloc time on the game
 float *A = (float*) malloc(sizeof(float) * num_rows_A * num_cols_A);
@@ -71,7 +20,7 @@ void matrix_2d_mul_float(float *A, float *B, float *C, int num_rows_A, int num_c
   int num_rows_C = num_rows_A;
   int num_cols_C = num_cols_B;
   // Iterate on each row of A
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(dynamic,1) collapse(2)
   for(int i=0; i<num_rows_A; i++) {
     // Iterate on each collumn of B
     for (int k=0; k<num_cols_B; k++) {
@@ -86,6 +35,13 @@ void matrix_2d_mul_float(float *A, float *B, float *C, int num_rows_A, int num_c
       // C[i][k] == C[i*num_cols_C+k]
       C[i*num_cols_C+k]=sum;
     }
+  }
+}
+
+void fillRand(float *vec, int minValue, int maxValue, int sizeVec) {
+  srand(time(NULL));
+  for (int idx = 0; idx < sizeVec; idx++) {
+    vec[idx] = rand() % maxValue + minValue;
   }
 }
 
@@ -120,27 +76,19 @@ int main() {
   printf("Size in bytes A: %d\n",numBytesA);
   printf("Size in bytes B: %d\n",numBytesB);
 
-  memcpy(A,A_ref,numBytesA);
-  displayVec1d(A,num_rows_A * num_cols_A,(char*)"A");
-
-  // Print reference
-  printf("Reference result for C\n");
-  displayMatrix2d((float*)C_ref,num_rows_C,num_cols_C);
+  // Fill arrays
+  fillRand(A, 1, 100, num_rows_A * num_cols_A);
+  fillRand(B, 1, 100, num_rows_B * num_cols_B);
 
   // Call sequential function
   //ProfilerStart("nameOfProfile.log");
-  for (int idxLoop=0; idxLoop < 1000000; idxLoop++) {
+  for (int idxLoop=0; idxLoop < 10; idxLoop++) {
     // Populate matricex on heap
-    memcpy(A,A_ref,numBytesA);
-    memcpy(B,B_ref,numBytesB);
 
     matrix_2d_mul_float(A,B,C,num_rows_A,num_cols_A,num_cols_B);
+    printf("Matrix multiplication done %d\n",idxLoop);
   }
-  //ProfilerStop();
 
-  // Print result
-  printf("Calculated result for C\n");
-  displayMatrix2d(C,num_rows_C,num_cols_C);
 
   // Free memory
   free(A);free(B);free(C);

@@ -1,4 +1,11 @@
 %% Measuring GPU Transfer rate
+% https://uk.mathworks.com/help/matlab/ref/timeit.html
+% https://uk.mathworks.com/help/distcomp/gpuarray.html
+% http://blogs.mathworks.com/loren/2012/12/14/measuring-gpu-performance/
+% http://blogs.mathworks.com/pick/2013/05/17/benchmarking-your-gpu/
+% http://uk.mathworks.com/company/newsletters/articles/improvements-to-tic-and-toc-functions-for-measuring-absolute-elapsed-time-performance-in-matlab.html?s_cid=fb_wall_11-8-11_newsletter_tictoc
+% http://uk.mathworks.com/help/distcomp/examples/benchmarking-a-b-on-the-gpu.html
+% https://uk.mathworks.com/help/distcomp/measure-and-improve-gpu-performance.html
 
 %% Setup
 gpu = gpuDevice();
