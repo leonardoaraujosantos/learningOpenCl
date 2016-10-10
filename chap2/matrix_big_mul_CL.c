@@ -1,6 +1,8 @@
 /*
 Compiling on Linux
 g++ -I /usr/local/cuda-7.5/include/ -L /usr/local/cuda-7.5/lib64 -o matrix_big_mul_CL matrix_big_mul_CL.c -lOpenCL -lm
+// Test on Juno
+g++ -I /home/root/work/Mali_OpenCL_SDK_v1.1.0/include -L /home/root/work/Mali_OpenCL_SDK_v1.1.0/lib -o matrix_big_mul_CL matrix_big_mul_CL.c -lOpenCL
 */
 #include <alloca.h>
 #include <math.h>
@@ -189,6 +191,7 @@ int main() {
        return -1;
      }
 
+    // Enqueues a command to execute a kernel on a device. (2 dimensions)
     err = clEnqueueNDRangeKernel(queue, kernel, 2, NULL, globalSize, localSize,0, NULL, NULL);
     if (err != CL_SUCCESS)
     {
