@@ -1,7 +1,6 @@
 /*
 Compiling on Linux
-g++ -I /usr/local/cuda-7.5/include/ -L /usr/local/cuda-7.5/lib64 -o
-addVector_1d_Host addVector_1d_Host.c -lOpenCL -lm
+g++ -I /usr/local/cuda-7.5/include/ -L /usr/local/cuda-7.5/lib64 -o addVector_1d_Host addVector_1d_Host.c -lOpenCL -lm
 */
 #include <alloca.h>
 #include <math.h>
