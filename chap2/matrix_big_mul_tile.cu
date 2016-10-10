@@ -21,6 +21,7 @@ float *C = (float*) malloc(sizeof(float) * num_rows_C * num_cols_C);
 float *C_ref = (float*) malloc(sizeof(float) * num_rows_C * num_cols_C);
 
 __global__ void matrix_2d_mul_float_gpu(float *A, float *B, float *C, int num_rows_A, int num_cols_A, int num_cols_B) {
+  // Create shared variables (Available to all threads on the same block)
   __shared__ float A_tile[N_THREADS][N_THREADS];
   __shared__ float B_tile[N_THREADS][N_THREADS];
   // Block index
@@ -49,9 +50,7 @@ __global__ void matrix_2d_mul_float_gpu(float *A, float *B, float *C, int num_ro
     for (int k = 0; k < N_THREADS; ++k)
       sum += A_tile[ty][k] * B_tile[k][tx];
 
-      // Synchronize to make sure that the preceding
-      // computation is done before loading two new
-      // sub-matrices of A and B in the next iteration
+      // Wait other threads to finish their sub-matrices
       __syncthreads();
   }
 
