@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define N_THREADS 8
+#define N_THREADS 20
 
 int num_rows_A = 2000; int num_rows_B = 2000; int num_rows_C = 2000;
 int num_cols_A = 2000; int num_cols_B = 600; int num_cols_C = 600;
@@ -37,11 +37,6 @@ __global__ void matrix_2d_mul_float_gpu(float *A, float *B, float *C, int num_ro
   int bStep  = N_THREADS * num_cols_B;
   int aStep  = N_THREADS;
 
-  // Same code for all 2d kernel
-  int i = blockIdx.y * blockDim.y + threadIdx.y;
-  int k = blockIdx.x * blockDim.x + threadIdx.x;
-  //if (i > num_rows_A || k > num_cols_B) return;
-
   float sum = 0;
 
   for (int a = aBegin, b = bBegin;a <= aEnd;a += aStep, b += bStep) {
@@ -60,19 +55,11 @@ __global__ void matrix_2d_mul_float_gpu(float *A, float *B, float *C, int num_ro
       __syncthreads();
   }
 
-  /*for (int j=0; j<num_cols_A; j++){
-    // A[i][j] == A[i*num_cols_A+j]
-    // B[j][k] == B[j*num_cols_B+k]
-    //sum += A[i][j]*B[j][k];
-    sum += A[i*num_cols_A+j]*B[j*num_cols_B+k];
-  }*/
-
   // Write the block sub-matrix to device memory;
   // each thread writes one element
   int c = num_cols_B * N_THREADS * by + N_THREADS * bx;
   C[c + num_cols_B * ty + tx] = sum;
 
-  //C[i*num_cols_B+k]=sum;
 }
 
 void matrix_2d_mul_float(float *A, float *B, float *C, int num_rows_A, int num_cols_A, int num_cols_B) {
