@@ -9,6 +9,7 @@ To profile
 nvprof ./managedMemoryAdd
 */
 #include <iostream>
+#include <stdio.h>
 #include <math.h>
 
 // Simple kernel to add elements
@@ -66,6 +67,7 @@ int main(void)
   // Now we calculate the grid dimensions
   int blockSize = 256;
   int numBlocks = (N + blockSize - 1) / blockSize;
+  printf("GridSize(in blocks):%d BlockSize(in threads):%d\n",numBlocks,blockSize);
   addGridThreads<<<numBlocks, blockSize>>>(N, x, y);
 
   // Wait for GPU to finish before accessing on host
